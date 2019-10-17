@@ -2,8 +2,12 @@ const {Schema, model} = require('mongoose')
 
 const userSchema = new Schema({
   name: {
-    Type: String,
+    type: String,
     required: [true, 'name must be filled']
+  },
+  score: {
+    type: Number,
+    default: 0
   }
 })
 
