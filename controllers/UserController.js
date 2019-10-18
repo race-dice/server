@@ -19,20 +19,26 @@ class UserController {
             .then(result => {
                 req.io.emit('datauser', result)
             })
-            .catch(next)            
+            .catch(next)
     }
     static update (req, res, next){
-        let {id} = req.params
-        let {posisi} = req.body
-        User.updateOne({_id: id}, {posisi})
-            .then(result => {
-                return User.find({})
-            })
-            .then(result => {
-                console.log(result);
-                req.io.emit('datauser', result)
-            })
-            .catch(next)
+        // req.io.on('connection', function(socket) {
+        //     socket.on('sendData', function(data) {
+        //         console.log(data)
+        //     })
+        // })
+
+        // let {id} = req.params
+        // let {posisi} = req.body
+        // User.updateOne({_id: id}, {posisi})
+        //     .then(result => {
+        //         return User.find({})
+        //     })
+        //     .then(result => {
+        //         console.log(result);
+        //         req.io.emit('datauser', result)
+        //     })
+        //     .catch(next)
     }
 }
 

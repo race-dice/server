@@ -9,6 +9,7 @@ const routes = require('./routes')
 const app = express();
 const errorHandler = require('./middlewares/errorHandler')
 const mongoose = require('mongoose')
+const User = require('./models/user')
 
 app.use(function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
@@ -32,11 +33,27 @@ app.use(express.urlencoded({extended:false}))
 
 mongoose.connect(process.env.MONGOOSE_URL, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: true })
   .then(_ => console.log('connected to mongoose'))
-  .catch(console.log)
+  .catch(err => {console.log("erorrrrrrrrrrrrrrr")})
 
 app.use(function(req, res, next) {
   req.io = io
   next()
+})
+
+io.on('connection', function(socket) {
+  socket.on('sendData', function(data) {
+      // console.log(data)
+      User.updateOne({_id: "5da889c91c9d440000e384fb"}, {posisi:data})
+      .then(result => {
+          return User.find({})
+      })
+      .then(result => {
+          // console.log(result);
+          io.emit('datauser', result)
+      })
+      
+      // save di datasbe, kirim ke yang lain
+  })
 })
 
 app.use('/',routes)
