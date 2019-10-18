@@ -2,11 +2,6 @@ const User = require('../models/user')
 const {comparePassword} = require('../helpers/bcryptjs')
 const {generateToken} = require('../helpers/jwt')
 
-const express = require('express');
-const app = express();
-const server = require('http').Server(app);
-const io = require('socket.io')(server);
-
 class UserController {
     static register (req,res, next) {
         const {username} = req.body
@@ -35,6 +30,7 @@ class UserController {
                     })
                 });
                 res.status(200).json(result)
+                req.io.emit('datauser', result)
             })
             .catch(next)
     }

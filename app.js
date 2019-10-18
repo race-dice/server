@@ -37,7 +37,10 @@ mongoose.connect(process.env.MONGOOSE_URL, { useNewUrlParser: true, useUnifiedTo
   .then(_ => console.log('connected to mongoose'))
   .catch(console.log)
 
-let currentSlideIndex = 0;
+app.use(function(req, res, next) {
+  req.io = io
+  next()
+})
 
 // io.on('connection', function (socket) {
 //     socket.on('change-slide-index', function(newIndex) {
