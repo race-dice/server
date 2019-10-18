@@ -30,4 +30,4 @@ function authorization(req, res, next){
     //     })
 }
 
-module.exports = {authentication, authorization} 
+module.exports = {authentication, authorization}
