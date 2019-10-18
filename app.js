@@ -17,19 +17,22 @@ app.use(function(req, res, next) {
     next();
 });
 
+app.use(cors())
+app.use(morgan('dev'))
+app.use(express.json())
+app.use(express.urlencoded({extended:false}))
+
+app.use('/',routes)
+
 // require('./config/mongoose')
 
 const PORT = process.env.PORT || 3000;
 
-app.use(cors())
 
 
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
 
-app.use(morgan('dev'))
-app.use(express.json())
-app.use(express.urlencoded({extended:false}))
 
 mongoose.connect(process.env.MONGOOSE_URL, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: true })
   .then(_ => console.log('connected to mongoose'))

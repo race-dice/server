@@ -6,39 +6,33 @@ class UserController {
     static register (req,res, next) {
         const {username} = req.body
         User.create({username})
-            .then(result => {
-                let payload = {username:result.username, _id:result._id}
+            .then(user => {
+                let payload = {username:user.username, _id:user._id}
                 let token = generateToken(payload)
-                res.status(201).json({token,username})
+                res.status(201).json({token,username, id: user._id})
             })
             .catch(next)
     }
+    static updateRoomId(req ,res, next) {
+        const { _id } = req.loggedUser
+        const { roomid } = req.params
+        User.updateOne({ _id }, { room: roomid }).exec()
+        .then(() => { res.status(200).json({ msg: "success" }) })
+        .catch(console.log)
+    }
     static showall (req, res, next){
-        // const {roomid} = req.params
-        User.find({}) //{room: roomid}
+        const { roomid } = req.params
+        User.find({room: roomid})
             .then(result => {
+                io.on('connection', function (socket) {
+                    socket.on('datauser', function() {
+                        io.emit('datauser', result);
+                    })
+                });
+                res.status(200).json(result)
                 req.io.emit('datauser', result)
             })
             .catch(next)
-    }
-    static update (req, res, next){
-        // req.io.on('connection', function(socket) {
-        //     socket.on('sendData', function(data) {
-        //         console.log(data)
-        //     })
-        // })
-
-        // let {id} = req.params
-        // let {posisi} = req.body
-        // User.updateOne({_id: id}, {posisi})
-        //     .then(result => {
-        //         return User.find({})
-        //     })
-        //     .then(result => {
-        //         console.log(result);
-        //         req.io.emit('datauser', result)
-        //     })
-        //     .catch(next)
     }
 }
 
