@@ -13,6 +13,13 @@ class UserController {
             })
             .catch(next)
     }
+    static showall (req, res, next) {
+        User.find().exec()
+        .then(users => {
+            res.status(200).json(users)
+        })
+        .catch(next)
+    }
 }
 
 module.exports = UserController
