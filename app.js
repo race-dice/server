@@ -10,6 +10,7 @@ const app = express();
 const errorHandler = require('./middlewares/errorHandler')
 const mongoose = require('mongoose')
 const User = require('./models/user')
+const { VerifyToken } = require("./helpers/jwt")
 
 app.use(function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
@@ -54,8 +55,27 @@ io.on('connection', function(socket) {
           // console.log(result);
           io.emit('datauser', result)
       })
-      
       // save di datasbe, kirim ke yang lain
+  })
+  socket.on("fetchUser", roomid => {
+    User.find({room: roomid})
+      .then(result => {
+          io.emit("returnedFetch", result)
+      })
+  })
+  socket.on("updatePosition", payload => {
+    const { token, posisi, roomid } = payload
+    let user = VerifyToken(token)
+    User.findOne({ _id: user._id }).exec()
+    .then(user => {
+      return User.updateOne({ _id: user._id }, { posisi: user.posisi + posisi })
+    })
+    .then(() => {
+      return User.find({room: roomid})
+    })
+    .then(result => {
+      io.emit("returnedFetch", result)
+    })
   })
 })
 

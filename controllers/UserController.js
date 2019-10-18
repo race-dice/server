@@ -1,6 +1,7 @@
 const User = require('../models/user')
 const {comparePassword} = require('../helpers/bcryptjs')
 const {generateToken} = require('../helpers/jwt')
+const ObjectId = require("mongoose").Types.ObjectId
 
 class UserController {
     static register (req,res, next) {
@@ -16,7 +17,7 @@ class UserController {
     static updateRoomId(req ,res, next) {
         const { _id } = req.loggedUser
         const { roomid } = req.params
-        User.updateOne({ _id }, { room: roomid }).exec()
+        User.updateOne({ _id }, { room: ObjectId(roomid) }).exec()
         .then(() => { res.status(200).json({ msg: "success" }) })
         .catch(console.log)
     }
@@ -24,13 +25,7 @@ class UserController {
         const { roomid } = req.params
         User.find({room: roomid})
             .then(result => {
-                io.on('connection', function (socket) {
-                    socket.on('datauser', function() {
-                        io.emit('datauser', result);
-                    })
-                });
                 res.status(200).json(result)
-                req.io.emit('datauser', result)
             })
             .catch(next)
     }
