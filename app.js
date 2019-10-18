@@ -16,8 +16,6 @@ app.use(function(req, res, next) {
     next();
 });
 
-app.use('/',routes)
-
 // require('./config/mongoose')
 
 const PORT = process.env.PORT || 3000;
@@ -36,16 +34,12 @@ mongoose.connect(process.env.MONGOOSE_URL, { useNewUrlParser: true, useUnifiedTo
   .then(_ => console.log('connected to mongoose'))
   .catch(console.log)
 
-let currentSlideIndex = 0;
+app.use(function(req, res, next) {
+  req.io = io
+  next()
+})
 
-io.on('connection', function (socket) {
-    socket.on('change-slide-index', function(newIndex) {
-        console.log(newIndex);
-        currentSlideIndex = newIndex;
-        
-        io.emit('update-slide-index', currentSlideIndex);
-    })
-});
+app.use('/',routes)
 
 app.use(errorHandler)
 server.listen(PORT, () => console.log('server is running on port', PORT));
