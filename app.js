@@ -7,21 +7,34 @@ const cors = require('cors');
 const morgan = require('morgan');
 const routes = require('./routes')
 const app = express();
-const server = require('http').Server(app);
-const io = require('socket.io')(server);
+const errorHandler = require('./middlewares/errorHandler')
+const mongoose = require('mongoose')
+
+app.use(function(req, res, next) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    next();
+});
 
 app.use('/',routes)
 
-require('./config/mongoose')
+// require('./config/mongoose')
 
 const PORT = process.env.PORT || 3000;
 
 app.use(cors())
+
+
+const server = require('http').Server(app);
+const io = require('socket.io')(server);
+
 app.use(morgan('dev'))
 app.use(express.json())
 app.use(express.urlencoded({extended:false}))
 
-server.listen(PORT, () => console.log('server is running on port', PORT));
+mongoose.connect(process.env.MONGOOSE_URL, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: true })
+  .then(_ => console.log('connected to mongoose'))
+  .catch(console.log)
 
 let currentSlideIndex = 0;
 
@@ -29,7 +42,10 @@ io.on('connection', function (socket) {
     socket.on('change-slide-index', function(newIndex) {
         console.log(newIndex);
         currentSlideIndex = newIndex;
-
+        
         io.emit('update-slide-index', currentSlideIndex);
     })
 });
+
+app.use(errorHandler)
+server.listen(PORT, () => console.log('server is running on port', PORT));
