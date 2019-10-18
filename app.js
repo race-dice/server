@@ -16,21 +16,22 @@ app.use(function(req, res, next) {
     next();
 });
 
+app.use(cors())
+app.use(morgan('dev'))
+app.use(express.json())
+app.use(express.urlencoded({extended:false}))
+
 app.use('/',routes)
 
 // require('./config/mongoose')
 
 const PORT = process.env.PORT || 3000;
 
-app.use(cors())
 
 
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
 
-app.use(morgan('dev'))
-app.use(express.json())
-app.use(express.urlencoded({extended:false}))
 
 mongoose.connect(process.env.MONGOOSE_URL, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: true })
   .then(_ => console.log('connected to mongoose'))
@@ -38,14 +39,13 @@ mongoose.connect(process.env.MONGOOSE_URL, { useNewUrlParser: true, useUnifiedTo
 
 let currentSlideIndex = 0;
 
-io.on('connection', function (socket) {
-    socket.on('change-slide-index', function(newIndex) {
-        console.log(newIndex);
-        currentSlideIndex = newIndex;
-        
-        io.emit('update-slide-index', currentSlideIndex);
-    })
-});
+// io.on('connection', function (socket) {
+//     socket.on('change-slide-index', function(newIndex) {
+//         console.log(newIndex);
+//         currentSlideIndex = newIndex;
+//         io.emit('update-slide-index', currentSlideIndex);
+//     })
+// });
 
 app.use(errorHandler)
 server.listen(PORT, () => console.log('server is running on port', PORT));

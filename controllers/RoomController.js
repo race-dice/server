@@ -1,11 +1,12 @@
 const Room = require('../models/room')
-
+const express = require('express')
+const app = express()
+const server = require("http").Server(app)
+const io = require("socket.io")(server)
 class RoomController {
     static create(req, res, next){
-        let {nama} = req.body
-        Room.create({
-            nama
-        })
+        let { name } = req.body
+        Room.create({ name })
             .then(data => {
                 res.status(201).json(data)
             })
@@ -15,6 +16,7 @@ class RoomController {
         Room.find()
             .then(data => {
                 res.status(200).json(data)
+                io.emit("dataroom", data)
             })
             .catch(next)
     }
